@@ -1,5 +1,10 @@
 window.addEventListener("DOMContentLoaded", (event) => {
     console.log("DOM fully loaded and parsed");
+
+    const sizeSlider = document.getElementById("sizeSlider");
+    sizeSlider.value = 16;
+    
+    makeGrid();
 });
 
 var color = true;
@@ -37,34 +42,25 @@ function setRainbow() {
 
 function setMode() {
     const cell = document.querySelectorAll("#container div");
-    if (color == true) {
-        cell.forEach(div => div.addEventListener("mousedown", (event) => {
-            cell.forEach(div => div.addEventListener("mousemove", setColor));
-        }));
-        cell.forEach(div => div.addEventListener("mouseup", (event) => {
-            cell.forEach(div => div.removeEventListener("mousemove", setColor));
-        }));
-        cell.forEach(div => div.addEventListener("mousedown", (event) => {
-            cell.forEach(div => div.removeEventListener("mousemove", setRainbow));
-        }));
-        cell.forEach(div => div.addEventListener("mouseup", (event) => {
-            cell.forEach(div => div.removeEventListener("mousemove", setRainbow));
-        }));
-    }
+    var setThis = setColor;
+    var removeThis = setRainbow;
+
     if (rainbow == true) {
-        cell.forEach(div => div.addEventListener("mousedown", (event) => {
-            cell.forEach(div => div.addEventListener("mousemove", setRainbow));
-        }));
-        cell.forEach(div => div.addEventListener("mouseup", (event) => {
-            cell.forEach(div => div.removeEventListener("mousemove", setRainbow));
-        }));
-        cell.forEach(div => div.addEventListener("mousedown", (event) => {
-            cell.forEach(div => div.removeEventListener("mousemove", setColor));
-        }));
-        cell.forEach(div => div.addEventListener("mouseup", (event) => {
-            cell.forEach(div => div.removeEventListener("mousemove", setColor));
-        }));
+        setThis = setRainbow;
+        removeThis = setColor;
     }
+    cell.forEach(div => div.addEventListener("mousedown", (event) => {
+        cell.forEach(div => div.addEventListener("mousemove", setThis));
+    }));
+    cell.forEach(div => div.addEventListener("mouseup", (event) => {
+        cell.forEach(div => div.removeEventListener("mousemove", setThis));
+    }));
+    cell.forEach(div => div.addEventListener("mousedown", (event) => {
+        cell.forEach(div => div.removeEventListener("mousemove", removeThis));
+    }));
+    cell.forEach(div => div.addEventListener("mouseup", (event) => {
+        cell.forEach(div => div.removeEventListener("mousemove", setThis));
+    }));
 }
 
 function eraser() {
@@ -94,17 +90,20 @@ function stopEraser() {
     console.log("eraser stopped")
 }
 
-function makeGrid(x) {
-    document.getElementById("container").innerHTML = '';
-    
-    var gridSize = document.getElementById("sizeSlider").value;
-    let cellSize = Math.floor(720 / gridSize);
-    const node = document.createElement("div");
-    node.setAttribute("class", "cell");
-    for (var i = 0; i < (gridSize**2); i++) {
-        document.getElementById("container").appendChild(node.cloneNode(true)); 
-        document.getElementsByClassName("cell")[i].style.width = cellSize + "px";
-        document.getElementsByClassName("cell")[i].style.height = cellSize + "px";
+function makeGrid() {
+    const container = document.getElementById("container");
+    container.innerHTML = '';
+
+    const gridSize = document.getElementById("sizeSlider").value;
+
+    container.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    container.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+    for (let i = 0; i < gridSize * gridSize; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        container.appendChild(cell);
     }
+
     setMode();
 }
